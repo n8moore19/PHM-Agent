@@ -89,7 +89,10 @@ export function offlineTurn(journey, ck, cp, text) {
   // Leniency: a real answer counts for the point the current question is after.
   const target = ck.missingForStage(cp)[0]?.replace(/\s*\(.*\)$/, "");
   const stageHeard = r.heard.some((id) => ck.missingForStage(cp).some((m) => m.startsWith(id)));
-  if (target && !stageHeard && words(text) >= (cp.stage === 0 ? 1 : 4)) r.heard.push(target);
+  // A real answer: a list ("children, neighbours, etc") or a few words; not filler like "hmm" or "idk".
+  const filler = /^\s*(hmm+|idk|dunno|not sure|ok(ay)?|maybe|yes|no|yeah|nope|\?+)\s*[.!?]*\s*$/i.test(text);
+  const real = !filler && (cp.stage === 0 || words(text) >= 3 || /[,;\n]/.test(text));
+  if (target && !stageHeard && real) r.heard.push(target);
   // Pick the next move from the state this turn will produce.
   const { cp: next } = applyTurn(cp, r);
   const s = journey.stages[next.stage];

@@ -82,3 +82,13 @@ test("the one-person answer is credited as overlap, so the coach moves on to the
   assert.ok(s.cp.heard.includes("S1-overlap"));
   assert.doesNotMatch(r.reply, /More than one\?/);
 });
+
+test("a short list counts as a real answer; filler does not", async () => {
+  const s = { history: [], cp: newCheckpoint() };
+  await say(s, "london, ontario");
+  await say(s, "idk");
+  assert.ok(!s.cp.heard.includes("S1-groups"));
+  const r = await say(s, "children, neighbours, etc");
+  assert.ok(s.cp.heard.includes("S1-groups"));
+  assert.match(r.reply, /More than one/);
+});
