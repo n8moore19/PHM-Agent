@@ -5,7 +5,8 @@ import { offlineTurn, escalationLine, INBOX } from "./lib/offline.js";
 
 const $ = (id) => document.getElementById(id);
 const TEAM = new URLSearchParams(location.search).has("team");
-const AI_URL = (window.PHM_AI_URL || "").trim();
+// ?ai=<url> points the page at a different coach (e.g. a local worker) for testing.
+const AI_URL = (new URLSearchParams(location.search).get("ai") || window.PHM_AI_URL || "").trim();
 const STORE = "phm-coach:";
 
 const OPENING = "Hi! I'm the PHM Coach, Southlake's conversational trainer for Population Health Management. We'll learn by working through a few real situations together, and there are no wrong answers. Before we get into any frameworks: think about where you live, and one other person who lives there. Where is it?";
