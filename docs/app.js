@@ -40,6 +40,10 @@ function addMsg(m, store = true) {
 }
 function renderProgress() {
   const cp = rec.checkpoint;
+  $("share").hidden = cp.outcome !== "trained";
+  // Learners never see the checkpoint; only the team view shows the stage track.
+  $("track").hidden = !TEAM;
+  if (!TEAM) return;
   $("track").innerHTML = "";
   journey.stages.forEach((s, i) => {
     const el = document.createElement("span");
@@ -50,7 +54,6 @@ function renderProgress() {
   t.className = "step " + (cp.outcome === "trained" ? "trained" : "");
   t.textContent = cp.outcome === "trained" ? "PHM Trained ✓" : "PHM Trained";
   $("track").appendChild(t);
-  $("share").hidden = cp.outcome !== "trained";
 }
 function renderTeam(events = []) {
   if (!TEAM) return;
@@ -66,6 +69,9 @@ function renderTeam(events = []) {
   for (const t of cp.trapsSeen) { const p = document.createElement("span"); p.className = "pill trap"; p.textContent = `${t} ${cp.openTraps.includes(t) ? "open" : "cleared"}`; $("traps").appendChild(p); }
   if (events.length) $("last").textContent = events.map((e) => e.type + (e.id ? " " + e.id : e.name ? " → " + e.name : "")).join(", ");
   $("briefing").textContent = ck.briefing(cp);
+  const r = rec.lastReport || {};
+  $("evidence").textContent = (r.evidence || []).map((e) => `${e.id}: "${e.quote}"`).join("\n") || (AI_URL ? "none this turn" : "demo coach: no evidence quotes");
+  $("sources").textContent = (r.sources || []).join(", ") || "none this turn";
 }
 
 // ---- coach --------------------------------------------------------------------------------
@@ -91,16 +97,20 @@ async function turn(text) {
     try { out = await liveTurn(text); }
     catch (e) { console.warn("Live coach unavailable, using demo coach:", e); }
   }
-  out ||= offlineTurn(journey, ck.applyTurn, rec.checkpoint, text);
+  out ||= offlineTurn(journey, ck, rec.checkpoint, text);
   const { cp, events } = ck.applyTurn(rec.checkpoint, out.report);
   if (out.report.last_ask) cp.lastAsk = out.report.last_ask;
   rec.checkpoint = cp;
   let reply = out.reply;
   if (out.report.escalated && !/PHMAdvance|get back to you/i.test(reply)) reply += "\n\n" + escalationLine();
+  if (events.some((e) => e.type === "handoff")) {
+    reply += `\n\nIf it would help, the PHM Advance team is happy to talk this through with you directly. Some of these ideas land best in a conversation with a person. You can reach them at ${INBOX} (mention your learner ID, **${rec.id}**). And you're welcome to keep going here too.`;
+  }
   if (events.some((e) => e.type === "trained")) {
     reply += `\n\nThat completes Stage 1 of the PHM Champion process: you're **PHM Trained**. Your learner ID is **${rec.id}**; keep it. ` +
       "Next, go back to your work, try the thing you named, then come back with your ID and tell me how it went. PHM Advance reviews that for certification and the Champion network.";
   }
+  rec.lastReport = out.report;
   return { reply, escalated: Boolean(out.report.escalated), events };
 }
 

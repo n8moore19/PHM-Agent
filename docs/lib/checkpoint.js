@@ -19,6 +19,8 @@ export function createCheckpoint(journey) {
     role: "unknown", confidence: null, commitment: null,
     outcome: "not_yet", // not_yet | trained
     escalations: 0,
+    stuck: 0,           // turns in this stage with nothing new heard
+    handoffs: [],       // stages where the PHM Advance handoff was offered
   });
 
   const has = (cp, id) => cp.heard.includes(id);
@@ -51,7 +53,7 @@ export function createCheckpoint(journey) {
 
   /** Apply one turn's report. Returns { cp, events } (events: heard, trap, trap_cleared, stage, trained). */
   function applyTurn(prev, report) {
-    const cp = structuredClone(prev);
+    const cp = structuredClone({ stuck: 0, handoffs: [], ...prev });
     const events = [];
     cp.stageTurns += 1;
 
@@ -80,12 +82,22 @@ export function createCheckpoint(journey) {
     else if (gap === cp.probe.gap) cp.probe.count += 1;
     else cp.probe = { gap, count: 1 };
 
+    // Stuck accounting: a turn with nothing new heard counts toward the handoff.
+    cp.stuck = events.some((e) => e.type === "heard" || e.type === "stepback" || e.type === "trap_cleared") ? 0 : cp.stuck + 1;
+
     // Advance as far as exits allow (a fast learner can clear several stages in one turn).
     while (cp.stage < LAST_STAGE && stageExitMet(cp, cp.stage)) {
       cp.stage += 1; cp.stageTurns = 0;
       // A stage gap resets with the stage; an open trap keeps its probe count.
       if (!(cp.probe.gap && cp.openTraps.includes(cp.probe.gap))) cp.probe = { gap: null, count: 0 };
+      cp.stuck = 0;
       events.push({ type: "stage", stage: cp.stage, name: journey.stages[cp.stage].name });
+    }
+    // Offer the PHM Advance handoff once per stage when the learner is stuck.
+    const exhausted = cp.probe.gap && cp.probe.count > journey.probe_limit + 1;
+    if (cp.outcome === "not_yet" && !cp.handoffs.includes(cp.stage) && (exhausted || cp.stuck >= (journey.handoff_after_turns || 6))) {
+      cp.handoffs.push(cp.stage);
+      events.push({ type: "handoff", stage: cp.stage });
     }
     if (cp.outcome === "not_yet" && cp.stage === LAST_STAGE && stageExitMet(cp, LAST_STAGE) && trainedReady(cp)) {
       cp.outcome = "trained";
@@ -105,6 +117,9 @@ export function createCheckpoint(journey) {
       `Open traps: ${cp.openTraps.join(", ") || "none"}.`,
       `Role: ${cp.role}.${cp.confidence !== null ? ` Starting confidence: ${cp.confidence}/10.` : ""}`,
     ];
+    if (cp.stuck >= (journey.handoff_after_turns || 6) - 2 && !cp.handoffs.includes(cp.stage))
+      lines.push(`The learner has gone ${cp.stuck} turns without new progress here. Try a different angle or a simpler scenario; the app will offer the PHM Advance handoff soon if this continues.`);
+    if (cp.handoffs.includes(cp.stage)) lines.push("The PHM Advance handoff has been offered in this stage. Keep coaching warmly if they continue; don't repeat the offer.");
     if (cp.stage === 3) lines.push(`Perspective tests already used: ${cp.testsUsed.join(", ") || "none"}. Step-backs so far: ${cp.stepbacks}/${journey.stepbacks_needed}.`);
     if (cp.probe.gap) {
       const mode = probeMode(cp);

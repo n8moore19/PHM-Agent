@@ -86,3 +86,23 @@ test("briefing never mentions awarding and names the current gap", () => {
   assert.match(b, /Open traps: T1/);
   assert.match(b, /Current gap: T1/);
 });
+
+test("a stuck learner is offered the PHM Advance handoff once per stage", () => {
+  let cp = turn(newCheckpoint(), { heard: ["S0-place"] }).cp;
+  const offers = [];
+  for (let i = 0; i < journey.handoff_after_turns + 3; i++) {
+    const r = turn(cp, {});
+    cp = r.cp;
+    offers.push(...r.events.filter((e) => e.type === "handoff"));
+  }
+  assert.equal(offers.length, 1);
+  assert.equal(cp.stage, 1);
+  assert.match(briefing(cp), /handoff has been offered/);
+});
+
+test("progress resets the stuck count", () => {
+  let cp = turn(newCheckpoint(), { heard: ["S0-place"] }).cp;
+  for (let i = 0; i < 4; i++) cp = turn(cp, {}).cp;
+  cp = turn(cp, { heard: ["S1-groups"] }).cp;
+  assert.equal(cp.stuck, 0);
+});

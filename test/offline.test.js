@@ -7,10 +7,11 @@ import { createCheckpoint } from "../docs/lib/checkpoint.js";
 import { offlineTurn } from "../docs/lib/offline.js";
 
 const journey = JSON.parse(readFileSync(new URL("../docs/journey.json", import.meta.url)));
-const { newCheckpoint, applyTurn } = createCheckpoint(journey);
+const ck = createCheckpoint(journey);
+const { newCheckpoint, applyTurn } = ck;
 
 async function say(s, text) {
-  const { reply, report } = offlineTurn(journey, applyTurn, s.cp, text);
+  const { reply, report } = offlineTurn(journey, ck, s.cp, text);
   const r = applyTurn(s.cp, report);
   if (report.last_ask) r.cp.lastAsk = report.last_ask;
   s.cp = r.cp;
@@ -53,4 +54,31 @@ test("sensitive questions escalate instead of being answered", async () => {
   const r = await say(s, "Is this going to replace nurses with cheaper staff?");
   assert.equal(r.report.escalated, true);
   assert.match(r.reply, /PHMAdvance@southlake\.ca/);
+});
+
+test("the demo never blocks on wording: plain, informal answers move a learner on", async () => {
+  const s = { history: [], cp: newCheckpoint() };
+  await say(s, "i live up near keswick");
+  assert.equal(s.cp.stage, 1);
+  const r = await say(s, "lots of older folks, young families, people who cant get a family doctor");
+  assert.ok(s.cp.heard.includes("S1-groups"), "informal groups answer counts");
+  assert.match(r.reply, /Which group are they in|More than one/i, "next it asks the one-person question");
+});
+
+test("a question mid-journey is acknowledged, not credited", async () => {
+  const s = { history: [], cp: newCheckpoint() };
+  await say(s, "Aurora");
+  const before = s.cp.heard.length;
+  const r = await say(s, "wait what does segmentation mean?");
+  assert.equal(s.cp.heard.length, before);
+  assert.match(r.reply, /Good question/);
+});
+
+test("the one-person answer is credited as overlap, so the coach moves on to the next question", async () => {
+  const s = { history: [], cp: newCheckpoint() };
+  await say(s, "Bradford");
+  await say(s, "older people living alone, families, folks with chronic conditions");
+  const r = await say(s, "yeah my neighbour is probably in two of those");
+  assert.ok(s.cp.heard.includes("S1-overlap"));
+  assert.doesNotMatch(r.reply, /More than one\?/);
 });

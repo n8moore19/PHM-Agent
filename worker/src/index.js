@@ -15,6 +15,8 @@ const RESPONSE_SCHEMA = {
     heard: { type: "array", items: { type: "string" }, description: `Key point ids: ${KEY_IDS.join(", ")}` },
     traps_detected: { type: "array", items: { type: "string" }, description: `Trap ids: ${TRAP_IDS.join(", ")}` },
     traps_cleared: { type: "array", items: { type: "string" } },
+    evidence: { type: "array", items: { type: "object", properties: { id: { type: "string" }, quote: { type: "string" } }, required: ["id", "quote"], additionalProperties: false } },
+    sources: { type: "array", items: { type: "string" } },
     gap_probed: { type: "string" },
     test_used: { type: "string" },
     role: { type: "string", enum: ["clinician", "administrator", "leader", "volunteer", "other", "unknown"] },
@@ -24,7 +26,7 @@ const RESPONSE_SCHEMA = {
     escalation_reason: { type: "string" },
     question_summary: { type: "string" },
   },
-  required: ["reply", "heard", "traps_detected", "traps_cleared", "gap_probed", "test_used", "role", "confidence", "commitment", "escalated", "escalation_reason", "question_summary"],
+  required: ["reply", "heard", "evidence", "sources", "traps_detected", "traps_cleared", "gap_probed", "test_used", "role", "confidence", "commitment", "escalated", "escalation_reason", "question_summary"],
   additionalProperties: false,
 };
 
@@ -97,6 +99,9 @@ export default {
       const text = response.content.find((b) => b.type === "text");
       if (!text) return json({ error: "Empty reply" }, 502, cors);
       const { reply, ...report } = JSON.parse(text.text);
+      // No quote, no credit: drop any key point the coach claimed without evidence.
+      const quoted = new Set((report.evidence || []).filter((e) => e.quote && e.quote.trim()).map((e) => e.id));
+      report.heard = (report.heard || []).filter((id) => quoted.has(id));
       return json({ reply, report }, 200, cors);
     } catch (error) {
       if (error instanceof Anthropic.AuthenticationError) return json({ error: "Server API key is missing or invalid" }, 500, cors);

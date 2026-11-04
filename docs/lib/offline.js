@@ -1,6 +1,7 @@
-// Built-in demo coach: keyword heuristics over the same journey, used until the live
-// Claude worker is connected (and as a fallback if it is ever unreachable). It is a
-// stand-in for showing the flow, not the real coach.
+// Built-in demo coach, used until the live Claude worker is connected (and as a fallback
+// if it is ever unreachable). It cannot read meaning: it catches a few traps by keyword
+// and otherwise accepts any real answer, so it never blocks a learner. It shows the
+// flow; the live coach is what judges understanding.
 
 export const INBOX = "PHMAdvance@southlake.ca";
 export const escalationLine = () =>
@@ -66,8 +67,11 @@ function report(cp, t) {
   };
 }
 
-/** One demo turn. cp is the current checkpoint; applyTurn comes from createCheckpoint. */
-export function offlineTurn(journey, applyTurn, cp, text) {
+const words = (t) => (t.trim().match(/\S+/g) || []).length;
+
+/** One demo turn. ck is the object from createCheckpoint; cp is the current checkpoint. */
+export function offlineTurn(journey, ck, cp, text) {
+  const { applyTurn } = ck;
   if (rx.sensitive.test(text)) {
     return { reply: `That's a real concern, and an important one to name. ${escalationLine()}`,
       report: { heard: [], traps_detected: [], traps_cleared: [], escalated: true, escalation_reason: "Sensitive topic", question_summary: text.slice(0, 300) } };
@@ -78,6 +82,14 @@ export function offlineTurn(journey, applyTurn, cp, text) {
     r.gap_probed = trap.id;
     return { reply: `Good instinct to get specific. I'd challenge you on one thing, though. ${trap.probe}`, report: r };
   }
+  const ask = (cp.lastAsk || "").replace(/\s*\([^)]*\)\s*$/, "");
+  if (/\?\s*$/.test(text) && cp.stage > 0) {
+    return { reply: `Good question. The full coach answers questions like that from Southlake's PHM materials; this demo can't, so I've noted it.${ask ? ` Coming back to where we were: ${ask}` : ""}`, report: r };
+  }
+  // Leniency: a real answer counts for the point the current question is after.
+  const target = ck.missingForStage(cp)[0]?.replace(/\s*\(.*\)$/, "");
+  const stageHeard = r.heard.some((id) => ck.missingForStage(cp).some((m) => m.startsWith(id)));
+  if (target && !stageHeard && words(text) >= (cp.stage === 0 ? 1 : 4)) r.heard.push(target);
   // Pick the next move from the state this turn will produce.
   const { cp: next } = applyTurn(cp, r);
   const s = journey.stages[next.stage];

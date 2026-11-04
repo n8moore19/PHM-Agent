@@ -1,38 +1,110 @@
 {
   "_about": "Learner journey for the PHM Coach. Mirrors the 'PHM Coach: Learner Journey Map' doc. The code reads stage exits and key points from here; the model reads everything. Edit wording freely; keep ids stable.",
-
   "key_points": {
-    "S0-place":          { "level": "start", "label": "Named a place (town, neighbourhood, community)" },
-    "L1-population":     { "level": 1, "label": "Starts from the full, geographically defined population and places any subgroup inside it" },
-    "L1-cycle":          { "level": 1, "label": "Walks the five steps as a repeating loop" },
-    "L1-distinction":    { "level": 1, "label": "Population health = the outcome; PHM = the organized process, by name; public health = community-wide efforts" },
-    "L1-quintuple":      { "level": 1, "label": "Names all five aims and that one should not be improved by seriously harming another" },
-    "L1-proactive":      { "level": 1, "label": "Proactive vs reactive: reaching people before an avoidable crisis" },
-    "L1-sdoh":           { "level": 1, "label": "Links social determinants and equity to PHM; clinical data alone is incomplete" },
-    "L1-plain":          { "level": 1, "label": "Explains PHM in plain language to a non-expert, including consent" },
-    "S1-groups":         { "level": "stage", "label": "Lists groups with similar needs (clinical, demographic, social)" },
-    "S1-overlap":        { "level": "stage", "label": "Sees that one person sits in several groups" },
-    "S2-equity-need":    { "level": "stage", "label": "Equity is need-based (targeted), not equal access" },
-    "S2-outcomes":       { "level": "stage", "label": "Separates outcomes that matter to people from process measures" },
-    "S3-stepback":       { "level": "stage", "label": "Steps back to the full population on a perspective test, unprompted (counted)" },
-    "L2-impact":         { "level": 2, "label": "Risk is not the same as where action helps most; risk informs judgment" },
-    "L2-everyone-gets":  { "level": 2, "label": "Names what everyone gets (basic PHM), not just the high-risk group" },
-    "L2-domains":        { "level": 2, "label": "Names which of the six domains they can influence; Ontario lacks an accountable regional organization" },
-    "L2-total-cost":     { "level": 2, "label": "Total cost of care across health and social services, not one budget" },
-    "S5-teachback":      { "level": "stage", "label": "Explains PHM vs population health to a colleague, back to everyone in a place" },
-    "S5-commitment":     { "level": "stage", "label": "Names one thing they will try and the support they need" }
+    "S0-place": {
+      "level": "start",
+      "label": "Named a place (town, neighbourhood, community)"
+    },
+    "L1-population": {
+      "level": 1,
+      "label": "Starts from the full, geographically defined population and places any subgroup inside it"
+    },
+    "L1-cycle": {
+      "level": 1,
+      "label": "Walks the five steps as a repeating loop"
+    },
+    "L1-distinction": {
+      "level": 1,
+      "label": "Population health = the outcome; PHM = the organized process, by name; public health = community-wide efforts"
+    },
+    "L1-quintuple": {
+      "level": 1,
+      "label": "Names all five aims and that one should not be improved by seriously harming another"
+    },
+    "L1-proactive": {
+      "level": 1,
+      "label": "Proactive vs reactive: reaching people before an avoidable crisis"
+    },
+    "L1-sdoh": {
+      "level": 1,
+      "label": "Links social determinants and equity to PHM; clinical data alone is incomplete"
+    },
+    "L1-plain": {
+      "level": 1,
+      "label": "Explains PHM in plain language to a non-expert, including consent"
+    },
+    "S1-groups": {
+      "level": "stage",
+      "label": "Lists groups with similar needs (clinical, demographic, social)"
+    },
+    "S1-overlap": {
+      "level": "stage",
+      "label": "Sees that one person sits in several groups"
+    },
+    "S2-equity-need": {
+      "level": "stage",
+      "label": "Equity is need-based (targeted), not equal access"
+    },
+    "S2-outcomes": {
+      "level": "stage",
+      "label": "Separates outcomes that matter to people from process measures"
+    },
+    "S3-stepback": {
+      "level": "stage",
+      "label": "Steps back to the full population on a perspective test, unprompted (counted)"
+    },
+    "L2-impact": {
+      "level": 2,
+      "label": "Risk is not the same as where action helps most; risk informs judgment"
+    },
+    "L2-everyone-gets": {
+      "level": 2,
+      "label": "Names what everyone gets (basic PHM), not just the high-risk group"
+    },
+    "L2-domains": {
+      "level": 2,
+      "label": "Names which of the six domains they can influence; Ontario lacks an accountable regional organization"
+    },
+    "L2-total-cost": {
+      "level": 2,
+      "label": "Total cost of care across health and social services, not one budget"
+    },
+    "S5-teachback": {
+      "level": "stage",
+      "label": "Explains PHM vs population health to a colleague, back to everyone in a place"
+    },
+    "S5-commitment": {
+      "level": "stage",
+      "label": "Names one thing they will try and the support they need"
+    }
   },
-
-  "level1": ["L1-population", "L1-cycle", "L1-distinction", "L1-quintuple", "L1-proactive", "L1-sdoh", "L1-plain"],
-  "central_traps": ["T1", "T2", "T5"],
+  "level1": [
+    "L1-population",
+    "L1-cycle",
+    "L1-distinction",
+    "L1-quintuple",
+    "L1-proactive",
+    "L1-sdoh",
+    "L1-plain"
+  ],
+  "central_traps": [
+    "T1",
+    "T2",
+    "T5"
+  ],
   "stepbacks_needed": 2,
   "probe_limit": 3,
-
+  "handoff_after_turns": 6,
+  "handoff": "If a learner is still stuck in a stage after the probes, a fresh scenario and a plain explanation, or after about six turns without progress, offer (never force) to connect them with the PHM Advance team at PHMAdvance@southlake.ca. Say it warmly: it's not a failure, some ideas land best in conversation with a person. They can keep going here too.",
   "stages": [
     {
-      "id": 0, "name": "Opening",
+      "id": 0,
+      "name": "Opening",
       "goal": "Ground the learner in geography and get a starting read. Never ask for a definition.",
-      "exit_all": ["S0-place"], "max_turns": 3,
+      "exit_all": [
+        "S0-place"
+      ],
+      "max_turns": 3,
       "agent_moves": [
         "Before we get into frameworks: think about where you live, and one other person who lives there. Where is it?",
         "What would you call that area if you were telling a neighbour? (A town or neighbourhood; a house or postal code is also fine.)",
@@ -41,9 +113,15 @@
       "listen_for": "Role tells. A confidence score above 7 hints at trap T3; note it and return to it in Stage 3."
     },
     {
-      "id": 1, "name": "Foundations: the worksheet walk",
+      "id": 1,
+      "name": "Foundations: the worksheet walk",
       "goal": "The learner does PHM before hearing its name. Name the steps only afterward.",
-      "exit_all": ["L1-population", "S1-groups", "S1-overlap", "L1-distinction"],
+      "exit_all": [
+        "S1-groups",
+        "S1-overlap",
+        "L1-population",
+        "L1-distinction"
+      ],
       "agent_moves": [
         "Using the place you named, list some groups of people there with similar needs. (Step 2 in disguise)",
         "Now think of that one person you pictured. Which group are they in? More than one? (The aha: if each group had its own program, how many teams would be planning for that one person?)",
@@ -55,9 +133,13 @@
       "distinction_move": "So far that's population health: describing who's there and how they're doing. The struggle is what we do with it. That's the management part."
     },
     {
-      "id": 2, "name": "The Quintuple Aim, for everyone",
+      "id": 2,
+      "name": "The Quintuple Aim, for everyone",
       "goal": "All five aims can move together, every role touches all five, equity is the 'everyone'.",
-      "exit_all": ["L1-quintuple", "S2-equity-need"],
+      "exit_all": [
+        "L1-quintuple",
+        "S2-equity-need"
+      ],
       "agent_moves": [
         "Think of one strategy for the community you named that would make it better on all five: population health outcomes, experience of care, cost of care, care team well-being, and health equity. Walk me through each one.",
         "Outcomes probe: those are good measures of activity. What are the outcomes that matter to the people themselves?",
@@ -68,27 +150,110 @@
       "pushback": "If the learner says all five can't move at once: agree that real trade-offs exist, then ask whether we could design it so all five move forward, even at different speeds, and who 'we' would need to include (community partners, not just Southlake)."
     },
     {
-      "id": 3, "name": "Perspective tests",
+      "id": 3,
+      "name": "Perspective tests",
       "goal": "Realistic pushback where the right answer steps back to the whole population. Use two or three, chosen by role and by traps noted earlier.",
-      "exit_all": [], "exit_stepbacks": true,
+      "exit_all": [],
+      "exit_stepbacks": true,
       "tests": [
-        { "id": "heart-failure", "say": "A program wants to run every step of the California framework for all our heart failure patients. Is that PHM?", "strong": "It starts at a segment: sub-population health management. Step 1 is missing. Who outside that group are we missing?", "traps": ["T1"] },
-        { "id": "roster", "say": "A family doctor says: I have 1,200 rostered patients, I risk-stratify them and reach out. So I do PHM, right?", "strong": "Good work, but the roster is a segment; unattached people in the same community are invisible.", "traps": ["T1", "T3"] },
-        { "id": "most-important", "say": "Talk me through the five steps. Which matters most?", "strong": "Step 1, defined as 'who are we responsible for', not 'what's the problem'.", "traps": ["T2"] },
-        { "id": "skip-step-1", "say": "If a team skips Step 1, what's the risk on each of the five aims?", "strong": "Cost shifts to other segments; the best pathways absorb resources; outcomes worsen elsewhere; equity suffers.", "traps": ["T18"] },
-        { "id": "clinic-slot", "say": "I run a diabetes clinic with 20 slots today. My friend's mom would like to be seen. What's the harm in fitting her in?", "strong": "Prioritization relative to everyone not on today's list; proactive outreach to those most in need.", "traps": ["T3"] },
-        { "id": "highest-risk-first", "say": "Should we always focus on the highest-risk people first?", "strong": "No: a medium-risk person may benefit more from early support. Risk informs judgment; it doesn't replace it.", "traps": ["T8", "T10"] },
-        { "id": "turn-away", "say": "So if we define our population by geography, do we turn away someone who lives outside it?", "strong": "No. We still care for them, and the information goes back to their home team.", "traps": [] },
-        { "id": "why-bother", "say": "If we still care for everyone, how is this different from today? Why bother?", "strong": "Continuity: someone in their home neighbourhood knows them across the whole journey, not episode by episode.", "traps": ["T20"] },
-        { "id": "six-domains", "say": "Which of the six domains could a team work on without the full-population view?", "strong": "Five of six, and doing so without the perspective can make things worse.", "traps": [], "roles": ["administrator", "leader"] }
+        {
+          "id": "heart-failure",
+          "say": "A program wants to run every step of the California framework for all our heart failure patients. Is that PHM?",
+          "strong": "It starts at a segment: sub-population health management. Step 1 is missing. Who outside that group are we missing?",
+          "traps": [
+            "T1"
+          ]
+        },
+        {
+          "id": "roster",
+          "say": "A family doctor says: I have 1,200 rostered patients, I risk-stratify them and reach out. So I do PHM, right?",
+          "strong": "Good work, but the roster is a segment; unattached people in the same community are invisible.",
+          "traps": [
+            "T1",
+            "T3"
+          ]
+        },
+        {
+          "id": "most-important",
+          "say": "Talk me through the five steps. Which matters most?",
+          "strong": "Step 1, defined as 'who are we responsible for', not 'what's the problem'.",
+          "traps": [
+            "T2"
+          ]
+        },
+        {
+          "id": "skip-step-1",
+          "say": "If a team skips Step 1, what's the risk on each of the five aims?",
+          "strong": "Cost shifts to other segments; the best pathways absorb resources; outcomes worsen elsewhere; equity suffers.",
+          "traps": [
+            "T18"
+          ]
+        },
+        {
+          "id": "clinic-slot",
+          "say": "I run a diabetes clinic with 20 slots today. My friend's mom would like to be seen. What's the harm in fitting her in?",
+          "strong": "Prioritization relative to everyone not on today's list; proactive outreach to those most in need.",
+          "traps": [
+            "T3"
+          ]
+        },
+        {
+          "id": "highest-risk-first",
+          "say": "Should we always focus on the highest-risk people first?",
+          "strong": "No: a medium-risk person may benefit more from early support. Risk informs judgment; it doesn't replace it.",
+          "traps": [
+            "T8",
+            "T10"
+          ]
+        },
+        {
+          "id": "turn-away",
+          "say": "So if we define our population by geography, do we turn away someone who lives outside it?",
+          "strong": "No. We still care for them, and the information goes back to their home team.",
+          "traps": []
+        },
+        {
+          "id": "why-bother",
+          "say": "If we still care for everyone, how is this different from today? Why bother?",
+          "strong": "Continuity: someone in their home neighbourhood knows them across the whole journey, not episode by episode.",
+          "traps": [
+            "T20"
+          ]
+        },
+        {
+          "id": "six-domains",
+          "say": "Which of the six domains could a team work on without the full-population view?",
+          "strong": "Five of six, and doing so without the perspective can make things worse.",
+          "traps": [],
+          "roles": [
+            "administrator",
+            "leader"
+          ]
+        }
       ],
       "standard_move": "Yes, that's great work. Now explain to me how it benefits everyone in our community."
     },
     {
-      "id": 4, "name": "Making it real",
+      "id": 4,
+      "name": "Making it real",
       "goal": "From idea to who does what, and explaining it to a member of the public. Tool depends on role.",
-      "exit_all": ["L1-plain"],
-      "exit_by_role": { "clinician": ["L2-everyone-gets"], "volunteer": ["L2-everyone-gets"], "administrator": ["L2-domains"], "leader": ["L2-domains"] },
+      "exit_all": [
+        "L1-plain"
+      ],
+      "exit_by_role": {
+        "clinician": [
+          "L2-everyone-gets"
+        ],
+        "volunteer": [
+          "L2-everyone-gets"
+        ],
+        "administrator": [
+          "L2-domains"
+        ],
+        "leader": [
+          "L2-domains"
+        ]
+      },
       "agent_moves": [
         "California (clinicians, volunteers, patient reps): walk me through gathering member information, understanding risk, and providing services. What gets done, who might do it, and why would it help staff and patients?",
         "How does an organization like an American insurer know who its members are? Who holds that list in Ontario? (OHIP: our names are already on a provincial list; the steps happen here, they just aren't connected.)",
@@ -98,9 +263,13 @@
       ]
     },
     {
-      "id": 5, "name": "Teach-back",
+      "id": 5,
+      "name": "Teach-back",
       "goal": "Show the perspective in their own role, then commit to one thing to try.",
-      "exit_all": ["S5-teachback", "S5-commitment"],
+      "exit_all": [
+        "S5-teachback",
+        "S5-commitment"
+      ],
       "agent_moves": [
         "A colleague on your team says: 'PHM, isn't that just population health?' What do you tell them?",
         "In my role (pick two or three, never a gauntlet): What's one small habit in your work that already reflects this way of thinking? Who outside your team shapes the health of the people you support, and how do you work with them? What happens before and after your part of someone's journey? How could your own work unintentionally leave someone out?",
@@ -108,59 +277,287 @@
       ]
     }
   ],
-
   "reflection_questions": {
     "_about": "The team's 20 questions sent to Southlake. Per Southlake they read a learner's starting point and prompt reflection on their own experience; they are never a gauntlet. Use one or two where they fit the stage. {role-next} = 'the nurse after you' for nurses, 'the next person who connects with them' for volunteers, 'the person who picks this up after you' otherwise.",
     "items": [
-      { "n": 1,  "q": "Where did you first come across PHM, and how? (Preface for experienced learners: do you know the difference between PHM and population health?)", "level": 1, "concepts": ["L1-distinction"] },
-      { "n": 2,  "q": "What's one small habit in your daily work that already reflects population health thinking?", "level": 3, "concepts": ["L1-proactive"] },
-      { "n": 3,  "q": "What feels difficult to put into practice in your setting?", "level": 3, "concepts": [] },
-      { "n": 4,  "q": "What is one thing you could try, and what support would you need?", "level": 3, "concepts": ["S5-commitment"] },
-      { "n": 5,  "q": "What would actually make your work day better?", "level": 3, "concepts": ["L1-quintuple"] },
-      { "n": 6,  "q": "Who outside your team shapes the health of the people you support, and when did you last work with them?", "level": 2, "concepts": ["integrated care", "closed-loop referral"] },
-      { "n": 7,  "q": "What gets in the way of doing your best work?", "level": 3, "concepts": [] },
-      { "n": 8,  "q": "What's worth passing on to {role-next}?", "level": 3, "concepts": ["integrated care"] },
-      { "n": 9,  "q": "If a colleague asked you what population health means, how would you explain it in one sentence? (A strong answer asks whether they mean population health or PHM, or explains both.)", "level": 1, "concepts": ["L1-distinction"] },
-      { "n": 10, "q": "Have any of the people you support, or their families, ever changed how you do something?", "level": 3, "concepts": ["co-design"] },
-      { "n": 11, "q": "What's something you notice that often goes unnoticed?", "level": 3, "concepts": ["L1-sdoh"] },
-      { "n": 12, "q": "Where do you make the most difference?", "level": 3, "concepts": ["L2-impact"] },
-      { "n": 13, "q": "What do you see that the rest of the system doesn't?", "level": 3, "concepts": ["integrated data infrastructure"] },
-      { "n": 14, "q": "Can you think of a change that improved more than one aspect of care? Were there any drawbacks?", "level": 2, "concepts": ["L1-quintuple"] },
-      { "n": 15, "q": "Is there an aspect of PHM that people seem to understand very differently?", "level": 1, "concepts": ["L1-distinction"] },
-      { "n": 16, "q": "What part of good care falls through when everyone's stretched thin?", "level": 3, "concepts": [] },
-      { "n": 17, "q": "When you're not sure what to do, what do you do first?", "level": 2, "concepts": [] },
-      { "n": 18, "q": "When do you feel least heard in how care gets decided?", "level": 3, "concepts": ["co-design"] },
-      { "n": 19, "q": "What is something that's taught that isn't easily realized in your work?", "level": 3, "concepts": ["emergent implementation"] },
-      { "n": 20, "q": "What questions has this raised for you?", "level": 3, "concepts": [] }
+      {
+        "n": 1,
+        "q": "Where did you first come across PHM, and how? (Preface for experienced learners: do you know the difference between PHM and population health?)",
+        "level": 1,
+        "concepts": [
+          "L1-distinction"
+        ]
+      },
+      {
+        "n": 2,
+        "q": "What's one small habit in your daily work that already reflects population health thinking?",
+        "level": 3,
+        "concepts": [
+          "L1-proactive"
+        ]
+      },
+      {
+        "n": 3,
+        "q": "What feels difficult to put into practice in your setting?",
+        "level": 3,
+        "concepts": []
+      },
+      {
+        "n": 4,
+        "q": "What is one thing you could try, and what support would you need?",
+        "level": 3,
+        "concepts": [
+          "S5-commitment"
+        ]
+      },
+      {
+        "n": 5,
+        "q": "What would actually make your work day better?",
+        "level": 3,
+        "concepts": [
+          "L1-quintuple"
+        ]
+      },
+      {
+        "n": 6,
+        "q": "Who outside your team shapes the health of the people you support, and when did you last work with them?",
+        "level": 2,
+        "concepts": [
+          "integrated care",
+          "closed-loop referral"
+        ]
+      },
+      {
+        "n": 7,
+        "q": "What gets in the way of doing your best work?",
+        "level": 3,
+        "concepts": []
+      },
+      {
+        "n": 8,
+        "q": "What's worth passing on to {role-next}?",
+        "level": 3,
+        "concepts": [
+          "integrated care"
+        ]
+      },
+      {
+        "n": 9,
+        "q": "If a colleague asked you what population health means, how would you explain it in one sentence? (A strong answer asks whether they mean population health or PHM, or explains both.)",
+        "level": 1,
+        "concepts": [
+          "L1-distinction"
+        ]
+      },
+      {
+        "n": 10,
+        "q": "Have any of the people you support, or their families, ever changed how you do something?",
+        "level": 3,
+        "concepts": [
+          "co-design"
+        ]
+      },
+      {
+        "n": 11,
+        "q": "What's something you notice that often goes unnoticed?",
+        "level": 3,
+        "concepts": [
+          "L1-sdoh"
+        ]
+      },
+      {
+        "n": 12,
+        "q": "Where do you make the most difference?",
+        "level": 3,
+        "concepts": [
+          "L2-impact"
+        ]
+      },
+      {
+        "n": 13,
+        "q": "What do you see that the rest of the system doesn't?",
+        "level": 3,
+        "concepts": [
+          "integrated data infrastructure"
+        ]
+      },
+      {
+        "n": 14,
+        "q": "Can you think of a change that improved more than one aspect of care? Were there any drawbacks?",
+        "level": 2,
+        "concepts": [
+          "L1-quintuple"
+        ]
+      },
+      {
+        "n": 15,
+        "q": "Is there an aspect of PHM that people seem to understand very differently?",
+        "level": 1,
+        "concepts": [
+          "L1-distinction"
+        ]
+      },
+      {
+        "n": 16,
+        "q": "What part of good care falls through when everyone's stretched thin?",
+        "level": 3,
+        "concepts": []
+      },
+      {
+        "n": 17,
+        "q": "When you're not sure what to do, what do you do first?",
+        "level": 2,
+        "concepts": []
+      },
+      {
+        "n": 18,
+        "q": "When do you feel least heard in how care gets decided?",
+        "level": 3,
+        "concepts": [
+          "co-design"
+        ]
+      },
+      {
+        "n": 19,
+        "q": "What is something that's taught that isn't easily realized in your work?",
+        "level": 3,
+        "concepts": [
+          "emergent implementation"
+        ]
+      },
+      {
+        "n": 20,
+        "q": "What questions has this raised for you?",
+        "level": 3,
+        "concepts": []
+      }
     ]
   },
-
   "outcomes": {
     "trained": "Every Level 1 key point heard, no central trap open, and a commitment named. The agent confirms it warmly and says what it heard.",
     "certified": "Applied PHM at work and wrote a short blurb. Decided by PHM Advance. The agent invites a return visit and helps shape the blurb.",
     "champion": "Brings the full-population perspective into conversations; part of the Champion network. Decided by PHM Advance. The agent never awards it."
   },
-
   "traps": [
-    { "id": "T1",  "trap": "Starts with a subgroup", "sounds_like": "PHM for all our heart failure / COPD / seniors", "probe": "Who is that group part of? Who would we miss if we started there?" },
-    { "id": "T2",  "trap": "Step 1 as finding the problem", "sounds_like": "Step one is identifying a need", "probe": "Before the need: who are we responsible for?" },
-    { "id": "T3",  "trap": "The people in front of us are the ones who need us most", "sounds_like": "We know our population, it's who we see", "probe": "Who in the community never comes through our doors?" },
-    { "id": "T4",  "trap": "Hospital-centric thinking", "sounds_like": "Only ED visits and length of stay; everyone here needs to be here", "probe": "What would those measures miss about people in the community?" },
-    { "id": "T5",  "trap": "PHM is population health", "sounds_like": "Describes rates and causes, then stops", "probe": "That explains the problem. What would the system actually do, and for whom first?" },
-    { "id": "T6",  "trap": "Process measures as outcomes", "sounds_like": "Fewer ED visits, more people attached", "probe": "Those are good activity measures. What matters to the people themselves?" },
-    { "id": "T7",  "trap": "PHM is for high-risk patients only", "sounds_like": "It's case management for complex patients", "probe": "What does everyone in the population get?" },
-    { "id": "T8",  "trap": "Risk equals impactibility", "sounds_like": "Always start with the highest-risk people", "probe": "Who could benefit most from early support, even if not highest risk?" },
-    { "id": "T9",  "trap": "Segmentation as a ranking", "sounds_like": "Segments go best to worst", "probe": "Are a new parent and a frail senior better or worse, or just different?" },
-    { "id": "T10", "trap": "The score replaces judgment", "sounds_like": "The algorithm says low risk, so...", "probe": "What might the data miss about this person?" },
-    { "id": "T11", "trap": "Clinical data only", "sounds_like": "We'll pull it from the chart", "probe": "What about their life would never show up in the chart?" },
-    { "id": "T12", "trap": "Same service for everyone in a segment", "sounds_like": "Everyone with diabetes gets the program", "probe": "What might two people in that group need differently?" },
-    { "id": "T13", "trap": "My organization does PHM / PHM isn't my job", "sounds_like": "Either", "probe": "Which of the five steps does your work touch, and who does the others?" },
-    { "id": "T14", "trap": "Referral sent means done", "sounds_like": "I referred them to community supports", "probe": "How would you know they got there?" },
-    { "id": "T15", "trap": "Consultation called co-design", "sounds_like": "We'll get feedback once it's built", "probe": "When would people need to be involved to change the design?" },
-    { "id": "T16", "trap": "Forgets consent and trust", "sounds_like": "Data gathering with no explanation or opt-out", "probe": "How would you explain this to my mom, including how she could say no?" },
-    { "id": "T17", "trap": "Triple Aim, not Quintuple", "sounds_like": "Names outcomes, experience and cost only", "probe": "There are two more. One is about you and your team, one is about fairness." },
-    { "id": "T18", "trap": "Trades one aim against another", "sounds_like": "It saves money, so it's a win", "probe": "Who might pay the price for that saving?" },
-    { "id": "T19", "trap": "One-time project", "sounds_like": "We launched it, so we're done", "probe": "Six months from now, how would you know it worked, and what next?" },
-    { "id": "T20", "trap": "Too abstract", "sounds_like": "Nice idea, not realistic (rainbows and unicorns)", "probe": "What's one small step in your own work?" }
+    {
+      "id": "T1",
+      "trap": "Starts with a subgroup",
+      "sounds_like": "PHM for all our heart failure / COPD / seniors",
+      "probe": "Who is that group part of? Who would we miss if we started there?"
+    },
+    {
+      "id": "T2",
+      "trap": "Step 1 as finding the problem",
+      "sounds_like": "Step one is identifying a need",
+      "probe": "Before the need: who are we responsible for?"
+    },
+    {
+      "id": "T3",
+      "trap": "The people in front of us are the ones who need us most",
+      "sounds_like": "We know our population, it's who we see",
+      "probe": "Who in the community never comes through our doors?"
+    },
+    {
+      "id": "T4",
+      "trap": "Hospital-centric thinking",
+      "sounds_like": "Only ED visits and length of stay; everyone here needs to be here",
+      "probe": "What would those measures miss about people in the community?"
+    },
+    {
+      "id": "T5",
+      "trap": "PHM is population health",
+      "sounds_like": "Describes rates and causes, then stops",
+      "probe": "That explains the problem. What would the system actually do, and for whom first?"
+    },
+    {
+      "id": "T6",
+      "trap": "Process measures as outcomes",
+      "sounds_like": "Fewer ED visits, more people attached",
+      "probe": "Those are good activity measures. What matters to the people themselves?"
+    },
+    {
+      "id": "T7",
+      "trap": "PHM is for high-risk patients only",
+      "sounds_like": "It's case management for complex patients",
+      "probe": "What does everyone in the population get?"
+    },
+    {
+      "id": "T8",
+      "trap": "Risk equals impactibility",
+      "sounds_like": "Always start with the highest-risk people",
+      "probe": "Who could benefit most from early support, even if not highest risk?"
+    },
+    {
+      "id": "T9",
+      "trap": "Segmentation as a ranking",
+      "sounds_like": "Segments go best to worst",
+      "probe": "Are a new parent and a frail senior better or worse, or just different?"
+    },
+    {
+      "id": "T10",
+      "trap": "The score replaces judgment",
+      "sounds_like": "The algorithm says low risk, so...",
+      "probe": "What might the data miss about this person?"
+    },
+    {
+      "id": "T11",
+      "trap": "Clinical data only",
+      "sounds_like": "We'll pull it from the chart",
+      "probe": "What about their life would never show up in the chart?"
+    },
+    {
+      "id": "T12",
+      "trap": "Same service for everyone in a segment",
+      "sounds_like": "Everyone with diabetes gets the program",
+      "probe": "What might two people in that group need differently?"
+    },
+    {
+      "id": "T13",
+      "trap": "My organization does PHM / PHM isn't my job",
+      "sounds_like": "Either",
+      "probe": "Which of the five steps does your work touch, and who does the others?"
+    },
+    {
+      "id": "T14",
+      "trap": "Referral sent means done",
+      "sounds_like": "I referred them to community supports",
+      "probe": "How would you know they got there?"
+    },
+    {
+      "id": "T15",
+      "trap": "Consultation called co-design",
+      "sounds_like": "We'll get feedback once it's built",
+      "probe": "When would people need to be involved to change the design?"
+    },
+    {
+      "id": "T16",
+      "trap": "Forgets consent and trust",
+      "sounds_like": "Data gathering with no explanation or opt-out",
+      "probe": "How would you explain this to my mom, including how she could say no?"
+    },
+    {
+      "id": "T17",
+      "trap": "Triple Aim, not Quintuple",
+      "sounds_like": "Names outcomes, experience and cost only",
+      "probe": "There are two more. One is about you and your team, one is about fairness."
+    },
+    {
+      "id": "T18",
+      "trap": "Trades one aim against another",
+      "sounds_like": "It saves money, so it's a win",
+      "probe": "Who might pay the price for that saving?"
+    },
+    {
+      "id": "T19",
+      "trap": "One-time project",
+      "sounds_like": "We launched it, so we're done",
+      "probe": "Six months from now, how would you know it worked, and what next?"
+    },
+    {
+      "id": "T20",
+      "trap": "Too abstract",
+      "sounds_like": "Nice idea, not realistic (rainbows and unicorns)",
+      "probe": "What's one small step in your own work?"
+    }
   ]
 }
