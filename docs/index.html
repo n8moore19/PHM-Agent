@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PHM Coach</title>
+<style>
+:root{--bg:#f5f6f4;--panel:#fff;--ink:#1c2a23;--muted:#5b6a62;--line:#dde3df;--brand:#14513d;--brand-soft:#e5efe9;--accent:#1f6f54;--warn-soft:#fbeee0;--trap:#5a3fa0}
+@media (prefers-color-scheme:dark){:root{--bg:#101513;--panel:#18201c;--ink:#e5ece8;--muted:#98a69f;--line:#2b3530;--brand:#7cc9a8;--brand-soft:#1d3128;--accent:#7cc9a8;--warn-soft:#3a2a1a;--trap:#b8a5ef}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-columns:1fr}
+.wrap.team{grid-template-columns:1fr 340px}
+@media (max-width:860px){.wrap.team{grid-template-columns:1fr}}
+header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-start;justify-content:space-between}
+.wrap.team header{grid-column:1/-1}
+h1{font-size:18px;margin:0;color:var(--brand)}
+.meta{font-size:12px;color:var(--muted)}
+.track{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.step{font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--panel)}
+.step.done{background:var(--brand-soft);color:var(--brand);border-color:transparent}
+.step.now{border-color:var(--accent);color:var(--ink);font-weight:600}
+.step.trained{background:var(--accent);color:var(--panel);border-color:transparent;font-weight:600}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+main{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:12px;height:calc(100vh - 160px);min-height:420px}
+#log{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:82%;padding:10px 14px;border-radius:12px}.msg p{margin:0 0 6px}.msg p:last-child{margin:0}.msg ul{margin:4px 0;padding-left:20px}
+.coach{background:var(--brand-soft);align-self:flex-start}.me{background:var(--bg);border:1px solid var(--line);align-self:flex-end}
+.coach.escalated{background:var(--warn-soft)}
+.tag{display:block;font-size:11px;color:var(--muted);margin-top:6px}
+form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+textarea,input{font:inherit;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+textarea{flex:1;resize:none}
+button{background:var(--brand);color:var(--panel);border:0;border-radius:8px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+button.ghost{background:none;color:var(--brand);border:1px solid var(--line)}
+button:disabled{opacity:.5;cursor:default}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;max-width:580px}
+#code{width:140px;letter-spacing:.1em}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.err{color:#b4581a;font-size:13px;margin-top:8px}
+#share label{display:block;margin-top:10px}#share input,#share textarea{width:100%;margin-top:4px}
+aside{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;height:calc(100vh - 160px);font-size:13px}
+aside h2{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:16px 0 6px}aside h2:first-child{margin-top:0}
+.kp{display:flex;gap:6px;padding:2px 0;color:var(--muted)}.kp.on{color:var(--ink)}.kp b{color:var(--accent);width:14px;flex:none}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--trap);color:var(--trap);margin:2px}
+pre{white-space:pre-wrap;font-size:12px;color:var(--muted);margin:0}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <header>
+    <div>
+      <h1>PHM Coach</h1>
+      <div class="meta">Southlake Health · Stage 1 of the PHM Champion process · prototype by Ivey MSc AFP Team 25</div>
+      <div class="track" id="track"></div>
+    </div>
+    <div class="meta" id="who"></div>
+  </header>
+
+  <div class="col">
+    <section class="card" id="start">
+      <p style="margin-top:0"><strong>Welcome.</strong> This is a conversation, not a test. You'll work through a few real situations, and nothing you say is marked wrong.</p>
+      <p class="meta">You'll get a six-digit learner ID. No name is needed. Your progress is saved in this browser; keep the ID to pick up where you left off.</p>
+      <div class="row"><button id="new">Start</button></div>
+      <div class="row"><input id="code" inputmode="numeric" maxlength="6" placeholder="Learner ID" aria-label="Learner ID"><button class="ghost" id="resume">Continue with my ID</button></div>
+      <div class="err" id="err"></div>
+    </section>
+
+    <main id="chat" hidden>
+      <div id="log" aria-live="polite"></div>
+      <form id="f"><textarea id="t" rows="2" placeholder="Type your answer or a question…" required></textarea><button id="b">Send</button></form>
+    </main>
+
+    <section class="card" id="share" hidden>
+      <strong>Share with PHM Advance (optional)</strong>
+      <p class="meta">Your conversation stays anonymous unless you choose to share. This opens an email to PHMAdvance@southlake.ca with your learner ID and progress.</p>
+      <label class="meta">Name, if you'd like to be recognized <input id="sname" maxlength="120"></label>
+      <label class="meta">When you're ready for certification: what you tried, who was involved, and how it reached everyone it should <textarea id="sblurb" rows="3"></textarea></label>
+      <div class="row"><button id="sbtn">Share by email</button></div>
+    </section>
+  </div>
+
+  <aside id="team" hidden>
+    <h2>Checkpoint</h2><div id="cpSummary"></div>
+    <h2>Key points heard</h2><div id="kps"></div>
+    <h2>Traps</h2><div id="traps"></div>
+    <h2>Last turn</h2><div id="last" class="meta">none yet</div>
+    <h2>What the coach is told this turn</h2><pre id="briefing"></pre>
+  </aside>
+</div>
+<script src="config.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

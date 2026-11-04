@@ -1,0 +1,21 @@
+# Cloudflare Worker that lets the PHM Coach talk to Claude without putting the API key
+# (or the source documents) in the public website. See README.md for setup.
+name = "phm-coach-ai"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Bundle the source documents as text.
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = true
+
+[vars]
+# Sites allowed to call this worker (comma separated). Add http://localhost:8000 to test locally.
+ALLOWED_ORIGINS = "https://n8moore19.github.io"
+# Claude model and effort. claude-haiku-5-5 is much cheaper if needed.
+MODEL = "claude-opus-5-5"
+EFFORT = "medium"
+
+# The API key is a secret, set with: npx wrangler secret put ANTHROPIC_API_KEY

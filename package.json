@@ -1,0 +1,11 @@
+{
+  "name": "phm-coach",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Southlake Health PHM Coach prototype (Ivey AFP Team 25)",
+  "type": "module",
+  "scripts": {
+    "start": "npx --yes http-server docs -p 8000 -c-1",
+    "test": "node --test test/*.test.js"
+  }
+}
