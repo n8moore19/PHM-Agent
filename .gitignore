@@ -4,3 +4,5 @@ node_modules/
 .wrangler/
 data/
 .DS_Store
+worker/content/coaching_themes.md
+worker/content/tools_intro.md

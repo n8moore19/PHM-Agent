@@ -1,5 +1,6 @@
 # Deploys the live-coach Worker to Cloudflare on every push to main.
-# The confidential source documents come from repository secrets, never from the repo.
+# The two Southlake-sourced documents come from repository secrets, never from the repo;
+# the team-written sources are committed in worker/content/.
 # Until CLOUDFLARE_API_TOKEN is added, this workflow does nothing.
 name: Deploy coach worker
 
@@ -21,23 +22,15 @@ jobs:
       - uses: actions/checkout@v4
         if: env.CF_TOKEN != ''
 
-      - name: Write source documents from secrets
+      - name: Write Southlake documents from secrets
         if: env.CF_TOKEN != ''
         env:
           COACHING: ${{ secrets.PHM_DOC_COACHING_THEMES }}
           TOOLS: ${{ secrets.PHM_DOC_TOOLS_INTRO }}
-          DEFINITIONS: ${{ secrets.PHM_DOC_DEFINITIONS }}
-          REFERENCE: ${{ secrets.PHM_DOC_FRAMEWORK_REFERENCE }}
-          SYNTHESIS: ${{ secrets.PHM_DOC_SYNTHESIS }}
-          NURSE: ${{ secrets.PHM_DOC_NURSE_BANK }}
         run: |
           mkdir -p worker/content
           printf '%s' "$COACHING"    > worker/content/coaching_themes.md
           printf '%s' "$TOOLS"       > worker/content/tools_intro.md
-          printf '%s' "$DEFINITIONS" > worker/content/definitions_library.md
-          printf '%s' "$REFERENCE"   > worker/content/framework_reference.md
-          printf '%s' "$SYNTHESIS"   > worker/content/framework_synthesis_extract.md
-          printf '%s' "$NURSE"       > worker/content/nurse_dialogue_bank.md
           for f in worker/content/*.md; do test -s "$f" || { echo "Missing secret for $f"; exit 1; }; done
 
       - name: Deploy
