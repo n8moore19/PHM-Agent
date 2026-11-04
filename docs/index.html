@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PHM Coach</title>
+<link rel="icon" href="img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#0a2d5e;--blue:#0067b1;--sky:#00a3e0;
+  --navy:#0a2d5e;--blue:#004b8d;--sky:#00a3e0;--teal:#00d9cc;
   --bg:#eef4fb;--panel:#ffffff;--ink:#0f2440;--muted:#5a6b82;--line:#dbe5f1;
   --brand:#0a4d8c;--brand-soft:#e4effa;--accent:#0077c8;--panel-2:#f6f9fd;
   --warn:#c2410c;--warn-soft:#fff3e8;--trap:#6d4bc4;
@@ -33,23 +34,23 @@ button:disabled{opacity:.55;cursor:default}
 .orb.b{width:360px;height:360px;background:#2b6cff;bottom:-140px;left:-60px;animation-delay:-5s}
 .orb.c{width:220px;height:220px;background:#7dd3fc;top:40%;left:45%;animation-delay:-9s;opacity:.35}
 @keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-25px) scale(1.08)}}
-.rings{position:absolute;right:4%;bottom:4%;width:min(380px,50vw);height:min(380px,50vw);opacity:.12;color:#fff}
+.watermark{position:absolute;right:-6%;bottom:-10%;width:min(760px,70vw);opacity:.07;pointer-events:none;animation:drift 22s ease-in-out infinite}
+@keyframes drift{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(2deg) translateY(-14px)}}
 .hero{position:relative;z-index:1;width:100%;max-width:1120px;margin:0 auto;padding:48px 16px;display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
-@media (max-width:860px){.hero{grid-template-columns:1fr;gap:28px;padding-top:32px}.rings{display:none}}
-.brandline{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em;font-size:14px;opacity:.95}
+@media (max-width:860px){.hero{grid-template-columns:1fr;gap:28px;padding-top:32px}.watermark{width:120vw;right:-40%;bottom:-6%}}
+.wordmark{display:block;height:auto;width:min(360px,80vw);filter:drop-shadow(0 4px 14px rgba(0,20,60,.25))}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;margin-top:26px;padding:6px 14px;border-radius:99px;background:rgba(0,217,204,.16);border:1px solid rgba(0,217,204,.45);color:#c9fffb;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px var(--teal)}
 .mark{width:38px;height:38px;flex:none;color:#fff}
 .hero h1{font-size:clamp(32px,5vw,54px);line-height:1.08;margin:18px 0 14px;font-weight:800;letter-spacing:-.02em}
-.hero h1 span{background:linear-gradient(90deg,#fff,#a5e8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1 span{background:linear-gradient(90deg,#a5f3ef,var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
 .lead{font-size:17px;max-width:520px;opacity:.9;margin:0 0 22px}
-.chips{display:flex;flex-wrap:wrap;gap:10px}
-.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);font-size:13px;font-weight:600;backdrop-filter:blur(6px)}
-.chip svg{width:16px;height:16px}
 .glass{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:24px;padding:28px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 30px 60px rgba(0,20,60,.35)}
 .glass h2{margin:0 0 6px;font-size:22px}
 .glass p{margin:0 0 18px;opacity:.88;font-size:14px}
 #code{width:100%;font:700 34px/1 "Plus Jakarta Sans",monospace;letter-spacing:.45em;text-align:center;padding:16px 0 16px .45em;border-radius:16px;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.96);color:var(--navy);outline:none;transition:border-color .2s,box-shadow .2s}
 #code::placeholder{color:#b6c6da}
-#code:focus{border-color:#fff;box-shadow:0 0 0 6px rgba(125,211,252,.45)}
+#code:focus{border-color:var(--teal);box-shadow:0 0 0 6px rgba(0,217,204,.35)}
 #go{width:100%;margin-top:14px;padding:15px;border-radius:14px;background:#fff;color:var(--navy);font-weight:800;font-size:16px;box-shadow:0 8px 20px rgba(0,20,60,.25);transition:transform .15s,box-shadow .15s}
 #go:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,20,60,.32)}
 .err{color:#ffe4c7;font-size:13px;margin-top:10px;min-height:1em;font-weight:600}
@@ -58,12 +59,14 @@ button:disabled{opacity:.55;cursor:default}
 /* ---------- app shell ---------- */
 .topbar{position:sticky;top:0;z-index:20;background:var(--grad);color:#fff;box-shadow:0 6px 20px rgba(10,45,94,.25)}
 .topbar .in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.topbar .logo{height:26px;width:auto;display:block}
+.topbar .div{width:1px;height:28px;background:rgba(255,255,255,.35)}
 .topbar .t{font-weight:800;font-size:17px;line-height:1.15}
 .topbar .s{font-size:12px;opacity:.8}
 .topbar .sp{flex:1}
 .idchip{font-weight:700;font-size:13px;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);white-space:nowrap}
 #switch{background:rgba(255,255,255,.95);color:var(--navy);font-weight:700;font-size:13px;padding:7px 14px;border-radius:99px;white-space:nowrap}
-@media (max-width:560px){.topbar .s{display:none}.topbar .mark{display:none}}
+@media (max-width:640px){.topbar .s,.topbar .div,.topbar .t{display:none}.topbar .logo{height:22px}}
 .wrap{max-width:1180px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-columns:1fr}
 .wrap.team{grid-template-columns:1fr 340px}
 @media (max-width:900px){.wrap.team{grid-template-columns:1fr}}
@@ -75,7 +78,7 @@ button:disabled{opacity:.55;cursor:default}
 #progLabel{font-weight:700;font-size:14px}
 #progPct{font-weight:800;font-size:20px;color:var(--accent)}
 .prog .bar{height:12px;border-radius:99px;background:var(--brand-soft);overflow:hidden}
-.prog .fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--sky));transition:width .8s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+.prog .fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--sky) 60%,var(--teal));transition:width .8s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
 .prog .fill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:shine 2.4s ease-in-out infinite}
 @keyframes shine{to{transform:translateX(100%)}}
 .prog.stuck .fill{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
@@ -93,10 +96,9 @@ main{display:flex;flex-direction:column;background:var(--panel);border:1px solid
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .msg p{margin:0 0 8px}.msg p:last-child{margin:0}.msg ul{margin:4px 0 8px;padding-left:20px}
 .coach{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-top-left-radius:6px;margin-left:46px;box-shadow:0 2px 8px rgba(10,45,94,.05)}
-.coach::before{content:"";position:absolute;left:-46px;top:0;width:34px;height:34px;border-radius:50%;background:var(--grad);box-shadow:0 4px 10px rgba(0,103,177,.35)}
-.coach::after{content:"";position:absolute;left:-37px;top:9px;width:16px;height:16px;border-radius:50%;border:2.5px solid #fff;box-sizing:border-box}
-@media (max-width:560px){.msg{max-width:88%}.coach{margin-left:0}.coach::before,.coach::after{display:none}}
-.me{align-self:flex-end;background:linear-gradient(135deg,var(--blue),var(--sky));color:#fff;border-top-right-radius:6px;box-shadow:0 6px 16px rgba(0,103,177,.25)}
+.coach::before{content:"";position:absolute;left:-46px;top:0;width:36px;height:36px;border-radius:50%;background:#fff url(img/southlake-mark.png) center/26px auto no-repeat;border:1px solid var(--line);box-shadow:0 4px 10px rgba(0,75,141,.18)}
+@media (max-width:560px){.msg{max-width:88%}.coach{margin-left:0}.coach::before{display:none}}
+.me{align-self:flex-end;background:linear-gradient(135deg,#0067b1,var(--sky));color:#fff;border-top-right-radius:6px;box-shadow:0 6px 16px rgba(0,103,177,.25)}
 .coach.escalated{background:var(--warn-soft);border-color:transparent}
 .coach.welcome{background:var(--brand-soft);border-color:transparent}
 .tag{display:inline-block;font-size:11px;font-weight:700;color:var(--warn);margin-top:8px;padding:2px 8px;border-radius:99px;background:rgba(194,65,12,.1)}
@@ -138,6 +140,7 @@ pre{white-space:pre-wrap;font-size:12px;color:var(--muted);margin:0}
 .cbox h2{position:relative;margin:4px 0;font-size:28px;font-weight:800;color:#16a34a}
 .cbox p{position:relative;margin:8px 0}
 .idbig{display:inline-block;font-weight:800;font-size:22px;letter-spacing:.2em;padding:6px 14px;border-radius:12px;background:var(--brand-soft);color:var(--brand)}
+.cbox .foot{position:relative;display:block;width:180px;margin:18px auto 0;opacity:.9}
 #cClose{position:relative;background:var(--grad);color:#fff;font-weight:700;border-radius:12px;padding:11px 26px;margin-top:8px}
 @keyframes pop{0%{transform:scale(.3);opacity:0}80%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
 @keyframes flash{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.7);filter:brightness(1)}50%{box-shadow:0 0 0 30px rgba(34,197,94,0);filter:brightness(1.25)}}
@@ -147,26 +150,19 @@ pre{white-space:pre-wrap;font-size:12px;color:var(--muted);margin:0}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="logo" viewBox="0 0 40 40"><circle cx="15" cy="16" r="10" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="25" cy="16" r="10" fill="none" stroke="currentColor" stroke-width="2.6" opacity=".8"/><circle cx="20" cy="25" r="10" fill="none" stroke="currentColor" stroke-width="2.6" opacity=".6"/><circle cx="20" cy="19" r="3" fill="currentColor"/></symbol>
-</svg>
 
 <!-- Sign in -->
 <section id="start">
   <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
-  <svg class="rings" aria-hidden="true"><use href="#logo"/></svg>
+  <img class="watermark" src="img/southlake-mark-silhouette.png" alt="" aria-hidden="true">
   <div class="hero">
     <div>
-      <div class="brandline"><svg class="mark" aria-hidden="true"><use href="#logo"/></svg>PHM Coach · Southlake Health</div>
+      <img class="wordmark" src="img/southlake-logo-white.png" alt="Southlake Health">
+      <div class="eyebrow">PHM Coach</div>
       <h1>Learn population health management <span>by doing it.</span></h1>
       <p class="lead">A short conversation that starts with a place you know and the people who live there. There are no wrong answers, just real situations to think through together.</p>
-      <div class="chips">
-        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>A conversation, not a test</span>
-        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>No names, just an ID</span>
-        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg>Pick up where you left off</span>
-      </div>
     </div>
-    <form class="glass" id="login" autocomplete="off">
+    <form class="glass" id="login" autocomplete="off" onsubmit="return false">
       <h2>Enter your learner ID</h2>
       <p>Use your six-digit ID. If you've been here before, your conversation picks up right where you left off.</p>
       <input id="code" inputmode="numeric" maxlength="6" placeholder="••••••" aria-label="Six-digit learner ID" autofocus>
@@ -180,8 +176,9 @@ pre{white-space:pre-wrap;font-size:12px;color:var(--muted);margin:0}
 <!-- Coach -->
 <div id="app" hidden>
   <header class="topbar"><div class="in">
-    <svg class="mark" aria-hidden="true"><use href="#logo"/></svg>
-    <div><div class="t">PHM Coach</div><div class="s">Southlake Health · Stage 1 of the PHM Champion process</div></div>
+    <img class="logo" src="img/southlake-logo-white.png" alt="Southlake Health">
+    <span class="div" aria-hidden="true"></span>
+    <div><div class="t">PHM Coach</div><div class="s">Stage 1 of the PHM Champion process</div></div>
     <div class="sp"></div>
     <span class="idchip" id="who"></span>
     <button id="switch" type="button">Switch ID</button>
@@ -233,9 +230,10 @@ pre{white-space:pre-wrap;font-size:12px;color:var(--muted);margin:0}
     <p id="cShare" class="meta" aria-live="polite"></p>
     <p>Southlake's PHM Advance team will reach out with next steps for the Champion process, where you put PHM into practice in your work.</p>
     <button id="cClose">Continue</button>
+    <img class="foot" src="img/southlake-logo.png" alt="Southlake Health">
   </div>
 </div>
-<script src="config.js"></script>
-<script type="module" src="app.js"></script>
+<script src="config.js?v=7"></script>
+<script type="module" src="app.js?v=7"></script>
 </body>
 </html>

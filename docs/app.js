@@ -1,8 +1,8 @@
 // PHM Coach, browser app. Holds the learner's checkpoint, talks to the live coach
 // (Cloudflare Worker) when configured, and falls back to the built-in demo coach.
-import { createCheckpoint } from "./lib/checkpoint.js";
-import { offlineTurn, escalationLine, INBOX } from "./lib/offline.js";
-import { renderVisual } from "./lib/visuals.js";
+import { createCheckpoint } from "./lib/checkpoint.js?v=7";
+import { offlineTurn, escalationLine, INBOX } from "./lib/offline.js?v=7";
+import { renderVisual } from "./lib/visuals.js?v=7";
 
 const $ = (id) => document.getElementById(id);
 const TEAM = new URLSearchParams(location.search).has("team");
@@ -22,7 +22,7 @@ const load = (id) => { try { return JSON.parse(localStorage.getItem(STORE + id))
 async function loadRemote(id) {
   if (!AI_URL) return null;
   try {
-    const res = await fetch(base() + "/session/load", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ learnerId: id }) });
+    const res = await fetch(base() + "/session/load", { signal: AbortSignal.timeout(8000), method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ learnerId: id }) });
     return res.ok ? (await res.json()).record : null;
   } catch { return null; }
 }
@@ -199,7 +199,7 @@ function open(r, returning) {
 
 async function init() {
   if (TEAM) { $("wrap").classList.add("team"); $("team").hidden = false; }
-  journey = await (await fetch("journey.json")).json();
+  journey = await (await fetch("journey.json?v=7")).json();
   ck = createCheckpoint(journey);
   const last = (() => { try { return localStorage.getItem(STORE + "last"); } catch { return null; } })();
   if (last && /^\d{6}$/.test(last)) $("code").value = last;
@@ -211,11 +211,16 @@ async function init() {
     const id = $("code").value.trim();
     if (!/^\d{6}$/.test(id)) return ($("err").textContent = "Enter a six-digit number.");
     $("go").disabled = true; $("go").textContent = "Opening…";
-    const local = load(id), remote = await loadRemote(id);
-    $("go").disabled = false; $("go").textContent = "Continue";
-    const r = [remote, local].filter((x) => x && x.checkpoint && Array.isArray(x.msgs)).sort((a, b) => (b.updated || "").localeCompare(a.updated || ""))[0];
-    if (r?.msgs.length) open({ ai: [], ...r, id }, true);
-    else open({ id, created: new Date().toISOString(), checkpoint: ck.newCheckpoint(), msgs: [], ai: [] }, false);
+    try {
+      const local = load(id), remote = await loadRemote(id);
+      const r = [remote, local].filter((x) => x && x.checkpoint && Array.isArray(x.msgs)).sort((a, b) => (b.updated || "").localeCompare(a.updated || ""))[0];
+      if (r?.msgs.length) open({ ai: [], ...r, id, checkpoint: { ...ck.newCheckpoint(), ...r.checkpoint } }, true);
+      else open({ id, created: new Date().toISOString(), checkpoint: ck.newCheckpoint(), msgs: [], ai: [] }, false);
+    } catch (err) {
+      console.error(err);
+      $("err").textContent = "Something went wrong opening that ID. Refresh the page and try again.";
+      $("app").hidden = true; $("start").hidden = false;
+    } finally { $("go").disabled = false; $("go").textContent = "Continue"; }
   };
   $("switch").onclick = () => {
     clearTimeout(remoteTimer); if (rec) save();
