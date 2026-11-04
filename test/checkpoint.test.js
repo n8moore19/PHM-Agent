@@ -106,3 +106,24 @@ test("progress resets the stuck count", () => {
   cp = turn(cp, { heard: ["S1-groups"] }).cp;
   assert.equal(cp.stuck, 0);
 });
+
+test("progress bar moves forward, flags being stuck, and hits 100 only when trained", () => {
+  const { progress } = createCheckpoint(journey);
+  let cp = newCheckpoint();
+  const p0 = progress(cp);
+  assert.equal(p0.step, 1); assert.equal(p0.stuck, false);
+  cp = turn(cp, { heard: ["S0-place"] }).cp;
+  const p1 = progress(cp);
+  assert.ok(p1.pct > p0.pct);
+  cp = turn(cp, { heard: ["S1-groups"] }).cp;
+  assert.ok(progress(cp).pct > p1.pct);
+  for (let i = 0; i < 3; i++) cp = turn(cp, {}).cp;
+  assert.equal(progress(cp).stuck, true);
+  assert.ok(progress(cp).pct < 100);
+  assert.equal(progress({ ...cp, outcome: "trained" }).pct, 100);
+});
+
+test("briefing tells the coach to skip the confidence question right after the place", () => {
+  const cp = turn(newCheckpoint(), { heard: ["S0-place"] }).cp;
+  assert.match(briefing(cp), /Don't ask the 0-10 confidence question now/);
+});

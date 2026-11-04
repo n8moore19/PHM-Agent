@@ -19,3 +19,11 @@ MODEL = "claude-opus-5-5"
 EFFORT = "medium"
 
 # The API key is a secret, set with: npx wrangler secret put ANTHROPIC_API_KEY
+
+# Records the PHM Advance team can see: learner IDs that completed Stage 1, escalated
+# questions, handoffs and write-ups. No names are ever stored.
+[[kv_namespaces]]
+binding = "PHM_RECORDS"
+id = "651a5711e11d4ed285b7556418d51bc5"
+
+# The team page password is a secret, set with: npx wrangler secret put TEAM_TOKEN

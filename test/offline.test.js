@@ -92,3 +92,17 @@ test("a short list counts as a real answer; filler does not", async () => {
   assert.ok(s.cp.heard.includes("S1-groups"));
   assert.match(r.reply, /More than one/);
 });
+
+test("demo coach shows the groups diagram at the overlap aha", () => {
+  let cp = ck.newCheckpoint();
+  cp = ck.applyTurn(cp, offlineTurn(journey, ck, cp, "London, Ontario").report).cp;
+  cp = ck.applyTurn(cp, offlineTurn(journey, ck, cp, "seniors, families with kids, newcomers").report).cp;
+  const out = offlineTurn(journey, ck, cp, "yes, she's in more than one");
+  assert.equal(out.report.visual, "groups");
+});
+
+test("every visual id renders an svg", async () => {
+  const { VISUAL_IDS, renderVisual } = await import("../docs/lib/visuals.js");
+  for (const id of VISUAL_IDS) assert.match(renderVisual(id, 1), /^<svg[\s\S]*<\/svg>$/);
+  assert.equal(renderVisual("nope"), "");
+});

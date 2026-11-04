@@ -17,6 +17,8 @@ const RESPONSE_SCHEMA = {
     traps_cleared: { type: "array", items: { type: "string" } },
     evidence: { type: "array", items: { type: "object", properties: { id: { type: "string" }, quote: { type: "string" } }, required: ["id", "quote"], additionalProperties: false } },
     sources: { type: "array", items: { type: "string" } },
+    visual: { type: "string", enum: ["", "cycle", "quintuple", "groups", "pyramid", "domains", "california", "distinction"] },
+    visual_highlight: { type: "number" },
     gap_probed: { type: "string" },
     test_used: { type: "string" },
     role: { type: "string", enum: ["clinician", "administrator", "leader", "volunteer", "other", "unknown"] },
@@ -26,7 +28,7 @@ const RESPONSE_SCHEMA = {
     escalation_reason: { type: "string" },
     question_summary: { type: "string" },
   },
-  required: ["reply", "heard", "evidence", "sources", "traps_detected", "traps_cleared", "gap_probed", "test_used", "role", "confidence", "commitment", "escalated", "escalation_reason", "question_summary"],
+  required: ["reply", "heard", "evidence", "sources", "visual", "visual_highlight", "traps_detected", "traps_cleared", "gap_probed", "test_used", "role", "confidence", "commitment", "escalated", "escalation_reason", "question_summary"],
   additionalProperties: false,
 };
 
@@ -51,8 +53,49 @@ function validMessages(messages) {
   );
 }
 
+// ---- records for the PHM Advance team (no names, ever) ----------------------------------
+const RECORD_TYPES = ["trained", "escalation", "handoff", "writeup"];
+const clip = (v, n) => (typeof v === "string" ? v.slice(0, n) : "");
+
+async function saveRecord(env, body) {
+  if (!/^\d{6}$/.test(String(body.learnerId || "")) || !RECORD_TYPES.includes(body.type)) return false;
+  const key = `learner:${body.learnerId}`;
+  const rec = (await env.PHM_RECORDS.get(key, "json")) || { id: body.learnerId, first: new Date().toISOString(), events: [] };
+  const d = body.data || {};
+  const event = { type: body.type, at: new Date().toISOString(),
+    role: clip(d.role, 20), stage: Number.isFinite(d.stage) ? d.stage : null, commitment: clip(d.commitment, 300),
+    question: clip(d.question, 500), text: clip(d.text, 2000),
+    heard: Array.isArray(d.heard) ? d.heard.slice(0, 40).map((x) => clip(x, 40)) : undefined,
+    traps: Array.isArray(d.traps) ? d.traps.slice(0, 40).map((x) => clip(x, 10)) : undefined };
+  rec.events = [...rec.events, event].slice(-100);
+  rec.last = event.at;
+  if (body.type === "trained") rec.trainedAt = rec.trainedAt || event.at;
+  await env.PHM_RECORDS.put(key, JSON.stringify(rec));
+  return true;
+}
+
+async function listRecords(env) {
+  const out = [];
+  let cursor;
+  do {
+    const page = await env.PHM_RECORDS.list({ prefix: "learner:", cursor });
+    for (const k of page.keys) out.push(await env.PHM_RECORDS.get(k.name, "json"));
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  return out.filter(Boolean).sort((a, b) => (b.last || "").localeCompare(a.last || ""));
+}
+
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+    // Team view: list records. Protected by the TEAM_TOKEN secret, not by origin.
+    if (url.pathname === "/records") {
+      const teamCors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Authorization", "Access-Control-Allow-Methods": "GET, OPTIONS" };
+      if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: teamCors });
+      const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+      if (!env.TEAM_TOKEN || token !== env.TEAM_TOKEN) return json({ error: "Wrong team code" }, 401, teamCors);
+      return json({ records: await listRecords(env) }, 200, teamCors);
+    }
     const allowed = (env.ALLOWED_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
     const origin = request.headers.get("Origin") || "";
     const cors = {
@@ -69,6 +112,9 @@ export default {
 
     let body;
     try { body = await request.json(); } catch { return json({ error: "Invalid JSON" }, 400, cors); }
+    if (url.pathname === "/record") {
+      return (await saveRecord(env, body)) ? json({ ok: true }, 200, cors) : json({ error: "Invalid record" }, 400, cors);
+    }
     if (!validMessages(body.messages) || typeof body.briefing !== "string" || body.briefing.length > 4000) return json({ error: "Invalid request" }, 400, cors);
 
     // The learner's latest words go in <learner>; the checkpoint briefing rides alongside.

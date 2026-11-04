@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PHM Coach Records</title>
+<style>
+:root{--bg:#f5f6f4;--panel:#fff;--ink:#1c2a23;--muted:#5b6a62;--line:#dde3df;--brand:#14513d;--brand-soft:#e5efe9;--accent:#1f6f54}
+@media (prefers-color-scheme:dark){:root{--bg:#101513;--panel:#18201c;--ink:#e5ece8;--muted:#98a69f;--line:#2b3530;--brand:#7cc9a8;--brand-soft:#1d3128;--accent:#7cc9a8}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+h1{font-size:18px;color:var(--brand);margin:0}.meta{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+input{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+button{background:var(--brand);color:var(--panel);border:0;border-radius:8px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0}
+.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--brand-soft);color:var(--brand);font-weight:600;margin-left:6px}
+.ev{border-top:1px solid var(--line);padding:6px 0;font-size:13px}.ev b{text-transform:capitalize}
+.err{color:#b4581a}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PHM Coach: learner records</h1>
+  <div class="meta">For the PHM Advance team. Records hold six-digit learner IDs only, never names.</div>
+  <form class="row" id="f"><input id="tok" type="password" placeholder="Team code" aria-label="Team code" autocomplete="off"><button>Load records</button></form>
+  <div id="out" class="meta"></div>
+</div>
+<script src="config.js"></script>
+<script>
+const out = document.getElementById("out");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const when = (s) => s ? new Date(s).toLocaleString() : "";
+document.getElementById("f").onsubmit = async (e) => {
+  e.preventDefault();
+  out.textContent = "Loading…";
+  try {
+    const res = await fetch((window.PHM_AI_URL || "").replace(/\/+$/, "") + "/records", { headers: { Authorization: "Bearer " + document.getElementById("tok").value.trim() } });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.status);
+    const rs = data.records || [];
+    const trained = rs.filter((r) => r.trainedAt).length;
+    out.innerHTML = `<p>${rs.length} learner ID(s), ${trained} PHM Trained.</p>` + rs.map((r) => `
+      <div class="card"><strong>Learner ${esc(r.id)}</strong>${r.trainedAt ? `<span class="badge">PHM Trained ${esc(when(r.trainedAt))}</span>` : ""}
+        <div class="meta">First seen ${esc(when(r.first))} · last ${esc(when(r.last))}</div>
+        ${(r.events || []).slice().reverse().map((ev) => `<div class="ev"><b>${esc(ev.type)}</b> · ${esc(when(ev.at))}${ev.role ? " · " + esc(ev.role) : ""}${ev.stage !== null && ev.stage !== undefined ? " · stage " + esc(ev.stage) : ""}
+          ${ev.commitment ? `<div>Will try: ${esc(ev.commitment)}</div>` : ""}${ev.question ? `<div>Question: ${esc(ev.question)}</div>` : ""}${ev.text ? `<div>What they did: ${esc(ev.text)}</div>` : ""}</div>`).join("")}
+      </div>`).join("");
+  } catch (err) { out.innerHTML = `<span class="err">Couldn't load records: ${esc(err.message)}</span>`; }
+};
+</script>
+</body>
+</html>

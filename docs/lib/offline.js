@@ -111,6 +111,12 @@ export function offlineTurn(journey, ck, cp, text) {
   let affirm = cp.stage === 0 ? "Great, let's use that place. "
     : r.heard.length ? "That's a strong answer, and you got there yourself. " : "Thanks, that helps me see where you're coming from. ";
   if (cp.stage === 1 && next.stage === 2) affirm += journey.stages[1].reveal + " ";
+  // Show a diagram at the moments the full coach would: the overlap aha, the reveal,
+  // the Quintuple Aim recap and the California walk-through.
+  r.visual = !cp.heard.includes("S1-overlap") && next.heard.includes("S1-overlap") ? "groups"
+    : cp.stage === 1 && next.stage === 2 ? "cycle"
+    : cp.stage === 2 && next.stage === 3 ? "quintuple"
+    : cp.stage === 3 && next.stage === 4 ? (["administrator", "leader"].includes(next.role) ? "domains" : "california") : "";
   r.last_ask = move;
   return { reply: affirm + move.replace(/\s*\([^)]*\)\s*$/, ""), report: r };
 }

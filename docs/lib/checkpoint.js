@@ -117,6 +117,10 @@ export function createCheckpoint(journey) {
       `Open traps: ${cp.openTraps.join(", ") || "none"}.`,
       `Role: ${cp.role}.${cp.confidence !== null ? ` Starting confidence: ${cp.confidence}/10.` : ""}`,
     ];
+    if (cp.stage === 1 && cp.stageTurns === 0)
+      lines.push("The learner just named their place. Acknowledge it in a few words and go straight to the first Stage 1 move (groups of people there with similar needs). Don't ask the 0-10 confidence question now.");
+    if (cp.stage === 3 && cp.confidence === null)
+      lines.push("Starting confidence was never asked. If it fits naturally, the 0-10 question (are the people you care for today the ones who need it most?) makes a good perspective test.");
     if (cp.stuck >= (journey.handoff_after_turns || 6) - 2 && !cp.handoffs.includes(cp.stage))
       lines.push(`The learner has gone ${cp.stuck} turns without new progress here. Try a different angle or a simpler scenario; the app will offer the PHM Advance handoff soon if this continues.`);
     if (cp.handoffs.includes(cp.stage)) lines.push("The PHM Advance handoff has been offered in this stage. Keep coaching warmly if they continue; don't repeat the offer.");
@@ -133,5 +137,18 @@ export function createCheckpoint(journey) {
     return lines.join("\n");
   }
 
-  return { KEY_IDS, TRAP_IDS, ROLES, newCheckpoint, applyTurn, briefing, missingLevel1, missingForStage, probeMode, trainedReady };
+  // Learner-facing progress: share of the journey done, a friendly label, and whether
+  // they've been on the same idea for a while. Never lists checkpoints or key points.
+  const LABELS = ["Getting started", "Building the picture", "Aims for everyone", "Testing it from new angles", "Making it real", "Putting it in your own words"];
+  function progress(cp) {
+    if (cp.outcome === "trained") return { pct: 100, label: "Complete", step: LAST_STAGE + 1, of: LAST_STAGE + 1, stuck: false };
+    const s = journey.stages[cp.stage];
+    const total = s.exit_all.length + (s.exit_by_role?.[cp.role]?.length || 0) + (s.exit_stepbacks ? journey.stepbacks_needed : 0);
+    const left = missingForStage(cp).reduce((n, m) => n + (m.startsWith("S3-stepback") ? journey.stepbacks_needed - cp.stepbacks : 1), 0);
+    const within = total ? Math.max(0, Math.min(1, (total - left) / total)) : 0;
+    const pct = Math.round(Math.min(97, ((cp.stage + within * 0.9) / (LAST_STAGE + 1)) * 100));
+    return { pct, label: LABELS[cp.stage] || s.name, step: cp.stage + 1, of: LAST_STAGE + 1, stuck: (cp.stuck || 0) >= 3 };
+  }
+
+  return { progress, KEY_IDS, TRAP_IDS, ROLES, newCheckpoint, applyTurn, briefing, missingLevel1, missingForStage, probeMode, trainedReady };
 }
