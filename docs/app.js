@@ -15,10 +15,26 @@ const OPENING = "Hi! I'm the PHM Coach, Southlake's conversational trainer for P
 
 let journey, ck, rec; // rec = { id, created, checkpoint, msgs:[{from,text,esc}], ai:[{role,content}], shared }
 
-// ---- storage (per browser; wrapped because storage can be blocked) -----------------
+// ---- storage: the coach server keeps each ID's conversation (so it works on any device);
+// this browser keeps a copy too, in case the server can't be reached. ----------------------
+const base = () => AI_URL.replace(/\/+$/, "");
 const load = (id) => { try { return JSON.parse(localStorage.getItem(STORE + id)); } catch { return null; } };
-const save = () => { try { rec.updated = new Date().toISOString(); localStorage.setItem(STORE + rec.id, JSON.stringify(rec)); localStorage.setItem(STORE + "last", rec.id); } catch {} };
-const newId = () => { let id; do id = String(100000 + Math.floor(Math.random() * 900000)); while (load(id)); return id; };
+async function loadRemote(id) {
+  if (!AI_URL) return null;
+  try {
+    const res = await fetch(base() + "/session/load", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ learnerId: id }) });
+    return res.ok ? (await res.json()).record : null;
+  } catch { return null; }
+}
+let remoteTimer;
+function save() {
+  rec.updated = new Date().toISOString();
+  try { localStorage.setItem(STORE + rec.id, JSON.stringify(rec)); localStorage.setItem(STORE + "last", rec.id); } catch {}
+  if (!AI_URL) return;
+  clearTimeout(remoteTimer);
+  const snapshot = JSON.stringify({ learnerId: rec.id, record: { ...rec, ai: rec.ai.slice(-40) } });
+  remoteTimer = setTimeout(() => fetch(base() + "/session/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: snapshot, keepalive: true }).catch(() => {}), 300);
+}
 
 // ---- rendering --------------------------------------------------------------------------
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -35,7 +51,7 @@ function format(s) {
 }
 function addMsg(m, store = true) {
   const d = document.createElement("div");
-  d.className = `msg ${m.from}${m.esc ? " escalated" : ""}`;
+  d.className = `msg ${m.from}${m.esc ? " escalated" : ""}${m.welcome ? " welcome" : ""}`;
   d.innerHTML = m.from === "coach" ? format(m.text) : `<p>${esc(m.text)}</p>`;
   if (m.visual) { const v = renderVisual(m.visual, m.vh); if (v) { const fig = document.createElement("figure"); fig.className = "fig"; fig.innerHTML = v; d.appendChild(fig); } }
   if (m.esc) { const t = document.createElement("span"); t.className = "tag"; t.textContent = "Passed to the PHM Advance team"; d.appendChild(t); }
@@ -90,7 +106,7 @@ function renderTeam(events = []) {
 async function postRecord(type, data = {}) {
   if (!AI_URL) return false;
   try {
-    const res = await fetch(AI_URL.replace(/\/+$/, "") + "/record", { method: "POST", headers: { "Content-Type": "application/json" },
+    const res = await fetch(base() + "/record", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ learnerId: rec.id, type, data }) });
     return res.ok;
   } catch { return false; }
@@ -101,6 +117,15 @@ function celebrate() {
   $("cId").textContent = rec.id;
   $("cShare").textContent = "Sharing your learner ID with Southlake's PHM Advance team…";
   $("celebrate").hidden = false; $("cClose").focus();
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const box = $("confetti"); box.innerHTML = "";
+    const colors = ["#00a3e0", "#0067b1", "#22c55e", "#facc15", "#7dd3fc", "#ffffff"];
+    for (let i = 0; i < 90; i++) {
+      const c = document.createElement("i");
+      c.style.cssText = `left:${Math.random() * 100}%;background:${colors[i % colors.length]};animation-delay:${Math.random() * 0.8}s;animation-duration:${2.4 + Math.random() * 1.8}s;transform:rotate(${Math.random() * 360}deg)`;
+      box.appendChild(c);
+    }
+  }
   const cp = rec.checkpoint;
   postRecord("trained", { role: cp.role, stage: cp.stage, commitment: cp.commitment || "", heard: cp.heard, traps: cp.trapsSeen }).then((ok) => {
     rec.reported = ok; save();
@@ -157,14 +182,14 @@ async function turn(text) {
 // ---- flow ----------------------------------------------------------------------------------
 function open(r, returning) {
   rec = r;
-  $("start").hidden = true; $("chat").hidden = false;
-  $("who").textContent = `Learner ID ${rec.id}` + (AI_URL ? "" : " · demo coach");
+  $("start").hidden = true; $("app").hidden = false; $("log").innerHTML = "";
+  $("who").textContent = `ID ${rec.id}` + (AI_URL ? "" : " · demo");
   if (returning && rec.msgs.length) {
     rec.msgs.forEach((m) => addMsg(m, false));
     const cp = rec.checkpoint;
     addMsg({ from: "coach", text: cp.outcome === "trained"
       ? `Welcome back. You're ${TRAINED}. Last time you said you'd try: "${cp.commitment}". How did it go? Tell me what you did, who was involved, and how it reached everyone it should.`
-      : `Welcome back. We'll pick up where you left off: ${journey.stages[cp.stage].name}.` });
+      : "Welcome back! Your conversation is saved above. Pick up with the last question whenever you're ready, or ask me anything.", welcome: true }, false);
   } else {
     addMsg({ from: "coach", text: OPENING });
     rec.ai.push({ role: "user", content: "[The learner opened the PHM Coach.]" }, { role: "assistant", content: OPENING });
@@ -177,26 +202,38 @@ async function init() {
   journey = await (await fetch("journey.json")).json();
   ck = createCheckpoint(journey);
   const last = (() => { try { return localStorage.getItem(STORE + "last"); } catch { return null; } })();
-  if (last && load(last)) $("code").value = last;
+  if (last && /^\d{6}$/.test(last)) $("code").value = last;
 
-  $("new").onclick = () => open({ id: newId(), created: new Date().toISOString(), checkpoint: ck.newCheckpoint(), msgs: [], ai: [] }, false);
-  $("resume").onclick = () => {
-    const c = $("code").value.trim(), r = load(c);
-    if (!/^\d{6}$/.test(c)) return ($("err").textContent = "Enter your six-digit learner ID.");
-    if (!r) return ($("err").textContent = "That ID isn't saved in this browser yet. Start fresh, or use the browser you started in.");
-    open(r, true);
+  // Sign in with any six-digit ID: a known ID picks up where it left off, a new one starts fresh.
+  $("code").addEventListener("input", () => { $("code").value = $("code").value.replace(/\D/g, "").slice(0, 6); $("err").textContent = ""; });
+  $("login").onsubmit = async (e) => {
+    e.preventDefault();
+    const id = $("code").value.trim();
+    if (!/^\d{6}$/.test(id)) return ($("err").textContent = "Enter a six-digit number.");
+    $("go").disabled = true; $("go").textContent = "Opening…";
+    const local = load(id), remote = await loadRemote(id);
+    $("go").disabled = false; $("go").textContent = "Continue";
+    const r = [remote, local].filter((x) => x && x.checkpoint && Array.isArray(x.msgs)).sort((a, b) => (b.updated || "").localeCompare(a.updated || ""))[0];
+    if (r?.msgs.length) open({ ai: [], ...r, id }, true);
+    else open({ id, created: new Date().toISOString(), checkpoint: ck.newCheckpoint(), msgs: [], ai: [] }, false);
+  };
+  $("switch").onclick = () => {
+    clearTimeout(remoteTimer); if (rec) save();
+    $("app").hidden = true; $("start").hidden = false; $("celebrate").hidden = true; $("code").value = ""; $("code").focus();
   };
   $("f").onsubmit = async (e) => {
     e.preventDefault();
     const m = $("t").value.trim(); if (!m) return;
     addMsg({ from: "me", text: m.slice(0, 2000) }); $("t").value = ""; $("b").disabled = true;
+    const typing = document.createElement("div"); typing.className = "msg coach typing"; typing.innerHTML = "<i></i><i></i><i></i>";
+    $("log").appendChild(typing); $("log").scrollTop = 1e9;
     try {
       const o = await turn(m.slice(0, 2000));
       addMsg({ from: "coach", text: o.reply, esc: o.escalated, ...(o.visual ? { visual: o.visual, vh: o.vh } : {}) });
       renderProgress(); renderTeam(o.events);
       if (o.events.some((e) => e.type === "trained")) celebrate();
-    } catch (err) { addMsg({ from: "coach", text: "Something went wrong: " + err.message, esc: true }); }
-    finally { save(); $("b").disabled = false; $("t").focus(); }
+    } catch (err) { typing.remove(); addMsg({ from: "coach", text: "Something went wrong: " + err.message, esc: true }); }
+    finally { typing.remove(); save(); $("b").disabled = false; $("t").focus(); }
   };
   $("t").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("f").requestSubmit(); } });
   $("cClose").onclick = () => { $("celebrate").hidden = true; $("t").focus(); };

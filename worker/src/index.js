@@ -37,7 +37,7 @@ const json = (body, status, headers) =>
 
 // Best effort per-visitor limit (each worker instance keeps its own counts).
 const hits = new Map();
-function tooMany(ip, limit = 20, windowMs = 60_000) {
+function tooMany(ip, limit = 60, windowMs = 60_000) {
   const now = Date.now();
   const recent = (hits.get(ip) || []).filter((t) => now - t < windowMs);
   recent.push(now);
@@ -112,6 +112,17 @@ export default {
 
     let body;
     try { body = await request.json(); } catch { return json({ error: "Invalid JSON" }, 400, cors); }
+    // Saved conversations, keyed by six-digit learner ID, so a learner can pick up anywhere.
+    if (url.pathname === "/session/load" || url.pathname === "/session/save") {
+      const id = String(body.learnerId || "");
+      if (!/^\d{6}$/.test(id)) return json({ error: "Invalid learner ID" }, 400, cors);
+      if (url.pathname === "/session/load") return json({ record: await env.PHM_RECORDS.get(`session:${id}`, "json") }, 200, cors);
+      const r = body.record;
+      const text = JSON.stringify(r || null);
+      if (!r || r.id !== id || typeof r.checkpoint !== "object" || !Array.isArray(r.msgs) || text.length > 1_000_000) return json({ error: "Invalid session" }, 400, cors);
+      await env.PHM_RECORDS.put(`session:${id}`, text);
+      return json({ ok: true }, 200, cors);
+    }
     if (url.pathname === "/record") {
       return (await saveRecord(env, body)) ? json({ ok: true }, 200, cors) : json({ error: "Invalid record" }, 400, cors);
     }
